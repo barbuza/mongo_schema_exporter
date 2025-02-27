@@ -1,3 +1,6 @@
+set export
+PATH := ".venv/bin:" + env_var("PATH")
+
 default: black ruff mypy pytest
 
 pytest:
