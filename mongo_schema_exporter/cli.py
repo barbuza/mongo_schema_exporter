@@ -77,13 +77,6 @@ def main() -> int:
         documents = collection.find()
         total = collection.count_documents(filter={})
 
-    if not documents:
-        print(
-            f"No documents found in collection {args.db}.{args.collection}",
-            file=sys.stderr,
-        )
-        return 1
-
     print(f"Analyzing {total} documents from {args.db}.{args.collection}...")
 
     flattened_schema: MongoObject = MongoObject(fields={})

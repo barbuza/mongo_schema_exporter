@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mongo_schema_exporter"
-version = "0.1.1"
+version = "0.1.2"
 description = "Export MongoDB collection schemas into JSON Schema format"
 readme = "README.md"
 requires-python = ">=3.13"
@@ -24,7 +24,6 @@ classifiers = [
 ]
 dependencies = [
     "argparse>=1.4.0",
-    "jsonschema>=4.23.0",
     "pymongo>=4.11.1",
     "tqdm>=4.67.1",
 ]
