@@ -3,35 +3,35 @@ Utility functions for MongoDB schema operations.
 This module contains helper functions for schema generation, merging, and conversion.
 """
 
-from typing import Any, Dict, List, TypeVar
-from bson import ObjectId, Decimal128, Binary, Timestamp, Regex
 from datetime import datetime
+from typing import Any, Dict, List, TypeVar
+
 import pymongo
+from bson import Binary, Decimal128, ObjectId, Regex, Timestamp
 from pymongo.collection import Collection
-from pymongo.database import Database
 from pymongo.cursor import Cursor
+from pymongo.database import Database
 from tqdm import tqdm
 
 from schema_types import (
-    MongoType,
-    MongoUnknown,
-    MongoString,
-    MongoInteger,
-    MongoDouble,
+    MongoArray,
+    MongoBinary,
     MongoBoolean,
     MongoDate,
-    MongoObjectId,
-    MongoNull,
-    MongoUnion,
-    MongoArray,
-    MongoObject,
-    MongoField,
-    MongoBinary,
     MongoDecimal128,
+    MongoDouble,
+    MongoField,
+    MongoInteger,
+    MongoNull,
+    MongoObject,
+    MongoObjectId,
     MongoRegex,
+    MongoString,
     MongoTimestamp,
+    MongoType,
+    MongoUnion,
+    MongoUnknown,
 )
-
 
 T = TypeVar("T")
 
@@ -76,7 +76,7 @@ def generate_schema(value: Any) -> MongoType:
     elif isinstance(value, str):
         return MongoString()
     elif isinstance(value, list):
-        if not value:  # Empty list
+        if not value:
             return MongoArray(element=MongoUnknown())
         return MongoArray(
             element=MongoUnion(
@@ -84,14 +84,12 @@ def generate_schema(value: Any) -> MongoType:
             ).flatten()
         )
     elif isinstance(value, dict):
-        # For dictionaries, we specifically return MongoObject (important for type narrowing)
-        result: MongoObject = MongoObject(
+        return MongoObject(
             fields={
                 k: MongoField(type=generate_schema(v), required=True)
                 for k, v in value.items()
             }
         )
-        return result
     elif value is None:
         return MongoNull()
     else:

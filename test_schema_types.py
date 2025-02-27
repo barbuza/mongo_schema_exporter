@@ -3,12 +3,12 @@ Unit tests for MongoDB schema exporter.
 """
 
 from schema_types import (
-    MongoUnion,
     MongoArray,
+    MongoField,
+    MongoInteger,
     MongoObject,
     MongoString,
-    MongoInteger,
-    MongoField,
+    MongoUnion,
 )
 
 

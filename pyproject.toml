@@ -41,7 +41,7 @@ packages = ["mongo_schema_exporter"]
 [tool.ruff]
 target-version = "py313"
 line-length = 88
-select = ["E", "F", "B", "I"]
+lint.select = ["E", "F", "B", "I"]
 
 [dependency-groups]
 dev = [
