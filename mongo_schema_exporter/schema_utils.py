@@ -140,7 +140,7 @@ def create_test_collection(
     return collection
 
 
-def validate_collection(source: Collection, target: Collection, limit: int = 0) -> None:
+def validate_collection(source: Collection, target: Collection, batch_size: int, limit: int) -> None:
     """
     Copy documents from source to target collection, throwing validation errors.
     The target collection should have validation rules applied.
@@ -154,14 +154,14 @@ def validate_collection(source: Collection, target: Collection, limit: int = 0) 
     total: int
 
     if limit > 0:
-        documents = source.find().limit(limit)
+        documents = source.find().sort([("_id", pymongo.DESCENDING)]).limit(limit)
         total = limit
     else:
         documents = source.find()
         total = source.count_documents(filter={})
 
     buffer: List[Dict[str, Any]] = []
-    for doc in tqdm(documents, desc="Validating documents", unit="docs", total=total):
+    for doc in tqdm(documents.batch_size(batch_size), desc="Validating documents", unit="doc", total=total):
         buffer.append(doc)
         if len(buffer) == 100:
             target.insert_many(buffer)

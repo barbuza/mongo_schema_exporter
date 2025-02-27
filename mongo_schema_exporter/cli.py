@@ -34,6 +34,12 @@ def main() -> int:
     parser.add_argument("--db", required=True, help="Database name")
     parser.add_argument("--collection", required=True, help="Collection name")
     parser.add_argument(
+        "--batch-size",
+        type=int,
+        default=1000,
+        help="Controls mongodb query batch size",
+    )
+    parser.add_argument(
         "--limit",
         type=int,
         default=0,
@@ -56,6 +62,11 @@ def main() -> int:
         action="store_true",
         help="Test if all documents in the collection comply with the generated schema",
     )
+    validation_group.add_argument(
+        "--validate-uri",
+        default="mongodb://localhost:27017/",
+        help="URI of database for validation",
+    )
 
     args = parser.parse_args()
 
@@ -71,7 +82,7 @@ def main() -> int:
     documents: Cursor
     total: int
     if args.limit > 0:
-        documents = collection.find().limit(args.limit)
+        documents = collection.find().sort([("_id", pymongo.DESCENDING)]).limit(args.limit)
         total = args.limit
     else:
         documents = collection.find()
@@ -83,9 +94,9 @@ def main() -> int:
     buffer: List[Dict[str, Any]] = []
     executor: ProcessPoolExecutor = ProcessPoolExecutor(max_workers=10)
 
-    for doc in tqdm(documents, desc="Generating schemas", unit="doc", total=total):
+    for doc in tqdm(documents.batch_size(args.batch_size), desc="Generating schemas", unit="doc", total=total):
         buffer.append(doc)
-        if len(buffer) == 100:
+        if len(buffer) == min(args.batch_size, 100):
             # Cast the result to List[MongoObject] since we know all inputs are dicts
             object_schemas: List[MongoObject] = [
                 cast(MongoObject, schema)
@@ -111,15 +122,20 @@ def main() -> int:
         print(
             f"Validating documents in {args.db}.{args.collection} against generated schema..."
         )
+
+        validate_client: pymongo.MongoClient = pymongo.MongoClient(
+            args.validate_uri, serverSelectionTimeoutMS=5000
+        )
+        validate_client.server_info()  # Will raise an exception if cannot connect
         test_collection: Collection = create_test_collection(
             flattened_schema,
-            client=client,
+            client=validate_client,
             db_name=f"{args.db}_validation",
             collection_name=f"{args.collection}_validation",
         )
 
         try:
-            validate_collection(collection, test_collection, limit=args.limit)
+            validate_collection(collection, test_collection, batch_size=args.batch_size, limit=args.limit)
         finally:
             if not args.keep_collection:
                 test_collection.drop()

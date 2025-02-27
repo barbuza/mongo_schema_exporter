@@ -2,7 +2,7 @@
 Unit tests for MongoDB schema exporter.
 """
 
-from schema_types import (
+from mongo_schema_exporter.schema_types import (
     MongoArray,
     MongoField,
     MongoInteger,

@@ -113,7 +113,7 @@ class MongoDecimal128(MongoScalar):
     """Represents a Decimal128 number in MongoDB."""
 
     def to_dict(self) -> Dict[str, Any]:
-        return {"bsonType": "decimal128"}
+        return {"bsonType": "decimal"}
 
 
 @dataclass
