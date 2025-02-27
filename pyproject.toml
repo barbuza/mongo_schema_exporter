@@ -1,0 +1,54 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mongo_schema_exporter"
+version = "0.1.1"
+description = "Export MongoDB collection schemas into JSON Schema format"
+readme = "README.md"
+requires-python = ">=3.13"
+license = {text = "MIT"}
+authors = [
+    {name = "Victor Kotseruba", email = "barbuzaster@gmail.com"},
+]
+keywords = ["mongodb", "schema", "json-schema", "database", "validation"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Database",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "argparse>=1.4.0",
+    "jsonschema>=4.23.0",
+    "pymongo>=4.11.1",
+    "tqdm>=4.67.1",
+]
+
+[project.urls]
+Homepage = "https://github.com/barbuza/mongo_schema_exporter"
+Issues = "https://github.com/barbuza/mongo_schema_exporter/issues"
+
+[project.scripts]
+mongo_schema_exporter = "mongo_schema_exporter.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["mongo_schema_exporter"]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 88
+select = ["E", "F", "B", "I"]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.15.0",
+    "pytest>=8.3.4",
+    "ruff>=0.9.7",
+    "twine>=6.1.0",
+    "types-tqdm>=4.67.0.20241221",
+]
