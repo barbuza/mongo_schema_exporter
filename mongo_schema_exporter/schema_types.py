@@ -101,14 +101,6 @@ class MongoDate(MongoScalar):
 
 
 @dataclass
-class MongoBinary(MongoScalar):
-    """Represents a Binary data type in MongoDB."""
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {"bsonType": "binary"}
-
-
-@dataclass
 class MongoDecimal128(MongoScalar):
     """Represents a Decimal128 number in MongoDB."""
 
@@ -130,6 +122,14 @@ class MongoTimestamp(MongoScalar):
 
     def to_dict(self) -> Dict[str, Any]:
         return {"bsonType": "timestamp"}
+
+
+@dataclass
+class MongoBinary(MongoScalar):
+    """Represents a Binary data type in MongoDB."""
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {"bsonType": "binData"}
 
 
 @dataclass

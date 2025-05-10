@@ -73,6 +73,8 @@ def generate_schema(value: Any) -> MongoType:
         return MongoRegex()
     elif isinstance(value, Timestamp):
         return MongoTimestamp()
+    elif isinstance(value, bytes):
+        return MongoBinary()
     elif isinstance(value, str):
         return MongoString()
     elif isinstance(value, list):
