@@ -4,13 +4,14 @@ PATH := ".venv/bin:" + env_var("PATH")
 default: black ruff mypy pytest
 
 pytest:
-    pytest --verbose --doctest-modules *.py
+    pytest --verbose --doctest-modules *.py mongo_schema_exporter/*.py
 
 mypy:
-    mypy *.py
+    mypy *.py mongo_schema_exporter/*.py
 
 ruff:
-    ruff check *.py
+    ruff check *.py mongo_schema_exporter/*.py
 
 black:
-    black *.py
+    black *.py mongo_schema_exporter/*.py
+

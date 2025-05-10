@@ -6,21 +6,22 @@ A tool to analyze MongoDB collections and generate schema definitions.
 """
 
 import argparse
-import sys
-import pymongo
-import pprint
 import json
-from typing import Any, Dict, List, Optional, cast
-from pymongo.collection import Collection
-from pymongo.database import Database
-from pymongo.cursor import Cursor
-from tqdm import tqdm
+import pprint
+import sys
 from concurrent.futures import ProcessPoolExecutor
+from typing import Any, Dict, List, Optional, cast
+
+import pymongo
+from pymongo.collection import Collection
+from pymongo.cursor import Cursor
+from pymongo.database import Database
+from tqdm import tqdm
 
 from .schema_types import MongoObject
 from .schema_utils import (
-    generate_schema,
     create_test_collection,
+    generate_schema,
     validate_collection,
 )
 
@@ -82,7 +83,9 @@ def main() -> int:
     documents: Cursor
     total: int
     if args.limit > 0:
-        documents = collection.find().sort([("_id", pymongo.DESCENDING)]).limit(args.limit)
+        documents = (
+            collection.find().sort([("_id", pymongo.DESCENDING)]).limit(args.limit)
+        )
         total = args.limit
     else:
         documents = collection.find()
@@ -94,7 +97,12 @@ def main() -> int:
     buffer: List[Dict[str, Any]] = []
     executor: ProcessPoolExecutor = ProcessPoolExecutor(max_workers=10)
 
-    for doc in tqdm(documents.batch_size(args.batch_size), desc="Generating schemas", unit="doc", total=total):
+    for doc in tqdm(
+        documents.batch_size(args.batch_size),
+        desc="Generating schemas",
+        unit="doc",
+        total=total,
+    ):
         buffer.append(doc)
         if len(buffer) == min(args.batch_size, 100):
             # Cast the result to List[MongoObject] since we know all inputs are dicts
@@ -120,7 +128,8 @@ def main() -> int:
     # Validate collection against schema if requested
     if args.validate:
         print(
-            f"Validating documents in {args.db}.{args.collection} against generated schema..."
+            f"Validating documents in {args.db}.{args.collection}"
+            " against generated schema..."
         )
 
         validate_client: pymongo.MongoClient = pymongo.MongoClient(
@@ -135,13 +144,19 @@ def main() -> int:
         )
 
         try:
-            validate_collection(collection, test_collection, batch_size=args.batch_size, limit=args.limit)
+            validate_collection(
+                collection,
+                test_collection,
+                batch_size=args.batch_size,
+                limit=args.limit,
+            )
         finally:
             if not args.keep_collection:
                 test_collection.drop()
             else:
                 print(
-                    f"Keeping validation collection {args.db}_validation.{args.collection}_validation"
+                    "Keeping validation collection"
+                    f" {args.db}_validation.{args.collection}_validation"
                 )
 
         print("Validation complete!")
@@ -165,4 +180,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main()) 
+    sys.exit(main())

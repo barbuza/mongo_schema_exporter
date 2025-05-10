@@ -3,35 +3,35 @@ Utility functions for MongoDB schema operations.
 This module contains helper functions for schema generation, merging, and conversion.
 """
 
-from typing import Any, Dict, List, TypeVar
-from bson import ObjectId, Decimal128, Binary, Timestamp, Regex
 from datetime import datetime
+from typing import Any, Dict, List, TypeVar
+
 import pymongo
+from bson import Binary, Decimal128, ObjectId, Regex, Timestamp
 from pymongo.collection import Collection
-from pymongo.database import Database
 from pymongo.cursor import Cursor
+from pymongo.database import Database
 from tqdm import tqdm
 
 from .schema_types import (
-    MongoType,
-    MongoUnknown,
-    MongoString,
-    MongoInteger,
-    MongoDouble,
+    MongoArray,
+    MongoBinary,
     MongoBoolean,
     MongoDate,
-    MongoObjectId,
-    MongoNull,
-    MongoUnion,
-    MongoArray,
-    MongoObject,
-    MongoField,
-    MongoBinary,
     MongoDecimal128,
+    MongoDouble,
+    MongoField,
+    MongoInteger,
+    MongoNull,
+    MongoObject,
+    MongoObjectId,
     MongoRegex,
+    MongoString,
     MongoTimestamp,
+    MongoType,
+    MongoUnion,
+    MongoUnknown,
 )
-
 
 T = TypeVar("T")
 
@@ -84,7 +84,8 @@ def generate_schema(value: Any) -> MongoType:
             ).flatten()
         )
     elif isinstance(value, dict):
-        # For dictionaries, we specifically return MongoObject (important for type narrowing)
+        # For dictionaries, we specifically return MongoObject
+        # (important for type narrowing)
         result: MongoObject = MongoObject(
             fields={
                 k: MongoField(type=generate_schema(v), required=True)
@@ -140,7 +141,9 @@ def create_test_collection(
     return collection
 
 
-def validate_collection(source: Collection, target: Collection, batch_size: int, limit: int) -> None:
+def validate_collection(
+    source: Collection, target: Collection, batch_size: int, limit: int
+) -> None:
     """
     Copy documents from source to target collection, throwing validation errors.
     The target collection should have validation rules applied.
@@ -161,7 +164,12 @@ def validate_collection(source: Collection, target: Collection, batch_size: int,
         total = source.count_documents(filter={})
 
     buffer: List[Dict[str, Any]] = []
-    for doc in tqdm(documents.batch_size(batch_size), desc="Validating documents", unit="doc", total=total):
+    for doc in tqdm(
+        documents.batch_size(batch_size),
+        desc="Validating documents",
+        unit="doc",
+        total=total,
+    ):
         buffer.append(doc)
         if len(buffer) == 100:
             target.insert_many(buffer)

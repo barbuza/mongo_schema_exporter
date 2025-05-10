@@ -4,7 +4,7 @@ This module contains classes that represent different MongoDB data types in a sc
 """
 
 from dataclasses import dataclass
-from typing import List, Dict, Any, Set, cast
+from typing import Any, Dict, List, Set, cast
 
 
 @dataclass
@@ -261,7 +261,8 @@ class MongoArray(MongoType):
             arrays: A list of MongoArray objects to merge
 
         Returns:
-            A new MongoArray with element type being the union of all input element types
+            A new MongoArray with element type being the union of all input
+            element types
         """
         if len(arrays) == 0:
             return MongoArray(element=MongoUnknown())
